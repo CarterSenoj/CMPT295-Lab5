@@ -1,0 +1,98 @@
+1. What was your test setup (i.e. what CPU model/generation did you test with? Desktop or laptop or other?)
+
+I ran testing using my desktop. Its a Ryzen 7 5700X (5th generation Ryzen)
+Ive noticed that my desktop is a lot faster than my laptop which has a Core i7 1255U.
+
+What were your results: how much faster (likely expressed as a fraction/percent) is each #2 implementation?
+(There is no exact answer here: results will vary by run, but give your best estimate of the "truth".)
+
+poly results with -march=haswell and -03 flag:
+polynomial1(3,2,7,-1,2) calculated        23200000000 in   392.6 ms
+polynomial2(3,2,7,-1,2) calculated        23200000000 in   230.2 ms
+polynomial3(3,2,7,-1,2) calculated        23200000000 in   226.7 ms
+
+poly2 is around 41.4% faster than polynomial1. I call this a substantial difference 
+
+is_odd results with -march=haswell and -03 flag
+is_odd1(7) + is_odd1(8) calculated          200000000 in   614.1 ms
+is_odd2(7) + is_odd2(8) calculated          200000000 in   428.8 ms
+is_odd3(7) + is_odd3(8) calculated          200000000 in   377.2 ms
+
+is_odd2 is around 30.2% faster than is_odd1 not as large of a difference as poly but 
+still a large difference if we were doing this repeatedly over a large data setup
+
+mul1(123) calculated   1612210200000000 in   236.6 ms
+mul2(123) calculated   1612210200000000 in   194.5 ms
+mul3(123) calculated   1612210200000000 in   191.7 ms
+
+mul2 is around 17.8% faster than mul1. gap is getting smaller but #2 is still faster
+
+
+3. In each case, the C implementation (#3) was described with the "slow" algorithm. How did they compare to the "fast" algorithm after the optimizer processed them?
+
+The way this question is worded would have me believe that the C code should be the slowest out of the bunch but that is not what I noticed
+
+Poly: Poly3 was about 42.3% faster than Poly1 was. This was very close to how fast the optimized asm code was. This still means that
+poly3 was the fastest of the bunch
+
+Is_odd: I see that is_odd3 was about 38.6% faster than is_odd1. This means that it was even 8% faster than is_odd2 was compared to is_odd1.
+meaning once again the C code ran the fastest on this percent
+
+Mul: mul3 was 19% faster than mul1 was which once again is showing that the C code was the fasted but also was faster than mul2 by ~1.2%.
+
+It seems that in these cases that the C compiler was able to optimize the C code to the point it was even faster than the hand written assembly code.
+
+4. [optional] Do you see any pattern to when mul1 is faster/slower than mul2 on different processors/computers/whatever? 
+Feel free to share timing results (but not solutions) with others in the course if it helps form a pattern.
+
+I did some testing with no flags and with different -march= settings. These were my findings.
+
+gcc -Wall -Wpedantic -std=c17 -march=haswell -O3 -c others.c lab5.S \
+&& gcc -Wall -Wpedantic -std=c17 -march=haswell -O3 others.o lab5.o timing.c \
+&& ./a.out
+
+mul1(123) calculated   1612210200000000 in   236.6 ms
+mul2(123) calculated   1612210200000000 in   194.5 ms
+mul3(123) calculated   1612210200000000 in   191.7 ms
+
+We see the results the same as above. (same run)
+
+Now I removed the optimizations 
+gcc -Wall -Wpedantic -std=c17 -march=haswell -c others.c lab5.S \
+&& gcc -Wall -Wpedantic -std=c17 -march=haswell  others.o lab5.o timing.c \
+&& ./a.out
+
+mul1(123) calculated   1612210200000000 in   194.2 ms
+mul2(123) calculated   1612210200000000 in   190.6 ms
+mul3(123) calculated   1612210200000000 in   192.7 ms
+
+Now they are all pretty close to eachother in this run. I ran it multiple times and when
+i remove the the -03 flags the mul1 now will consistently run in under 200ms but as soon 
+as I add -03 back mul1 is always longer than 230ms
+
+Now I try running it with -march=native and I get these results
+
+gcc -Wall -Wpedantic -std=c17 -march=native -O3 -c others.c lab5.S \
+&& gcc -Wall -Wpedantic -std=c17 -march=native -O3 others.o lab5.o timing.c \
+&& ./a.out
+mul1(123) calculated   1612210200000000 in   189.0 ms
+mul2(123) calculated   1612210200000000 in   188.4 ms
+mul3(123) calculated   1612210200000000 in   188.7 ms
+
+Now I can consistently get all 3 mul implementations to run around 188ms.
+It is clear that letting *newer* CPU architechture compile and be optimized 
+to be best for it can make a decent differenece in raw compute time. 
+
+Lastly I removed -03 and kept -march=native 
+gcc -Wall -Wpedantic -std=c17 -march=native -c others.c lab5.S \
+&& gcc -Wall -Wpedantic -std=c17 -march=native  others.o lab5.o timing.c \
+&& ./a.out
+
+mul1(123) calculated   1612210200000000 in   193.4 ms
+mul2(123) calculated   1612210200000000 in   188.3 ms
+mul3(123) calculated   1612210200000000 in   193.9 ms
+
+I consistently get results where mul1 and mul3 are within 1ms of eachother and mul2 
+now takes the lead, slightly, but still does now run faster. 
+
+Overall interesting results messing arounnd with optimizing code and the compiler options. 
