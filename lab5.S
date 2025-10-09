@@ -11,7 +11,8 @@
 fibonacci:
 # pushing reg for holding fib(n-1) results
 push %r12
-# keep looping while n > i
+
+# base case. if n <= 1 return n
 cmp $1, %rdi
 jg fib_loop
 mov %rdi, %rax
@@ -23,11 +24,11 @@ fib_loop:
 push %rdi
 sub $1, %rdi
 call fibonacci
-# hold total of fib(n-1)
+# store fib(n-1)
 mov %rax, %r12
 
 # rdi is on the stack at its starting value
-# so just reuse same looping as before with 
+# so just reuse the same looping as before with 
 # n - 2
 pop %rdi
 sub $2, %rdi
@@ -35,6 +36,7 @@ call fibonacci
 
 # %rax holders result of fib(n-2) so add result of fib(n-1)
 add %r12, %rax
+# restore %r12
 pop %r12
 ret
 
