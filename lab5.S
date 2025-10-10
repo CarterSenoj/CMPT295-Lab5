@@ -28,7 +28,7 @@ call fibonacci
 mov %rax, %r12
 
 # rdi is on the stack at its starting value
-# so just reuse the same looping as before with 
+# so reuse the same looping as before with 
 # n - 2
 pop %rdi
 sub $2, %rdi
@@ -68,12 +68,19 @@ add %r8, %rax
 ret
 
 polynomial2:
+# x * a
 imul %rdi, %rsi
+# + b
 add %rdx, %rsi
+# * x
 imul %rdi, %rsi
+# + c
 add %rcx, %rsi
+# * x
 imul %rdi, %rsi
+# + d
 add %r8, %rsi
+# mov to answer
 mov %rsi, %rax
 ret
 
@@ -82,7 +89,8 @@ is_odd1:
 mov $2, %r8
 # move %rdi to dividend 
 mov %rdi, %rax
-# needed to use idiv. cant fill upper end with zeros like lab 4
+# needed to use idiv. cant fill the upper end 
+# with zeros like lab 4
 # sign-extends %rax into %rdx
 cqto
 idiv %r8
@@ -115,7 +123,7 @@ mul2:
 mov %rdi, %rax
 # shift left by 16 bits
 # which happens to multiply by 2^16
-# shl $x, %rax shifts rax by that man bits left
+# shl $x, %rax shifts rax by that many bits left
 # accomplishing %rax * 2^x
 shl $16, %rax
 # add one more x to get 65537 * n
