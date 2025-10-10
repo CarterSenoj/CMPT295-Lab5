@@ -19,26 +19,24 @@ is_odd2(7) + is_odd2(8) calculated          200000000 in   428.8 ms
 is_odd3(7) + is_odd3(8) calculated          200000000 in   377.2 ms
 
 is_odd2 is around 30.2% faster than is_odd1 not as large of a difference as poly but 
-still a large difference if we were doing this repeatedly over a large data setup
+still a large difference if we were doing this repeatedly over a large data set
 
 mul1(123) calculated   1612210200000000 in   236.6 ms
 mul2(123) calculated   1612210200000000 in   194.5 ms
 mul3(123) calculated   1612210200000000 in   191.7 ms
 
-mul2 is around 17.8% faster than mul1. gap is getting smaller but #2 is still faster
+mul2 is around 17.8% faster than mul1. The gap is getting smaller but #2 is still faster
 
 
 3. In each case, the C implementation (#3) was described with the "slow" algorithm. How did they compare to the "fast" algorithm after the optimizer processed them?
 
 The way this question is worded would have me believe that the C code should be the slowest out of the bunch but that is not what I noticed
 
-Poly: Poly3 was about 42.3% faster than Poly1 was. This was very close to how fast the optimized asm code was. This still means that
-poly3 was the fastest of the bunch
+Poly: Poly3 was about 42.3% faster than Poly1 was. This was very close to how fast the optimized asm code was. This still means that poly3 was the fastest of the bunch.
 
-Is_odd: I see that is_odd3 was about 38.6% faster than is_odd1. This means that it was even 8% faster than is_odd2 was compared to is_odd1.
-meaning once again the C code ran the fastest on this percent
+Is_odd: I see that is_odd3 was about 38.6% faster than is_odd1. This means that it was even 8% faster than is_odd2 was compared to is_odd1. Meaning once again, the C code ran the fastest in this case.
 
-Mul: mul3 was 19% faster than mul1 was which once again is showing that the C code was the fasted but also was faster than mul2 by ~1.2%.
+Mul3 was 19% faster than Mul1, which once again shows that the C code was the fastest and also outperformed Mul2 by ~1.2%.
 
 It seems that in these cases that the C compiler was able to optimize the C code to the point it was even faster than the hand written assembly code.
 
@@ -66,9 +64,10 @@ mul1(123) calculated   1612210200000000 in   194.2 ms
 mul2(123) calculated   1612210200000000 in   190.6 ms
 mul3(123) calculated   1612210200000000 in   192.7 ms
 
-Now they are all pretty close to eachother in this run. I ran it multiple times and when
-i remove the the -03 flags the mul1 now will consistently run in under 200ms but as soon 
-as I add -03 back mul1 is always longer than 230ms
+Now they are all pretty close to each other in this run. I ran it multiple times and when
+I removed the -03 flags the mul1 now will consistently run in under 200ms, but as soon 
+as I add -03 back mul1 is always longer than 230ms. This confuses me because I didnt think optimization 
+flags would make a difference for assembly code. 
 
 Now I try running it with -march=native and I get these results
 
@@ -80,10 +79,10 @@ mul2(123) calculated   1612210200000000 in   188.4 ms
 mul3(123) calculated   1612210200000000 in   188.7 ms
 
 Now I can consistently get all 3 mul implementations to run around 188ms.
-It is clear that letting *newer* CPU architechture compile and be optimized 
-to be best for it can make a decent differenece in raw compute time. 
+It is clear that letting *newer* CPU architecture compile and be optimized 
+to be best for it can make a decent difference in raw compute time. 
 
-Lastly I removed -03 and kept -march=native 
+Lastly, I removed -03 and kept -march=native 
 gcc -Wall -Wpedantic -std=c17 -march=native -c others.c lab5.S \
 && gcc -Wall -Wpedantic -std=c17 -march=native  others.o lab5.o timing.c \
 && ./a.out
@@ -92,7 +91,7 @@ mul1(123) calculated   1612210200000000 in   193.4 ms
 mul2(123) calculated   1612210200000000 in   188.3 ms
 mul3(123) calculated   1612210200000000 in   193.9 ms
 
-I consistently get results where mul1 and mul3 are within 1ms of eachother and mul2 
+I consistently get results where mul1 and mul3 are within 1ms of each other and mul2 
 now takes the lead, slightly, but still does now run faster. 
 
 Overall interesting results messing arounnd with optimizing code and the compiler options. 
